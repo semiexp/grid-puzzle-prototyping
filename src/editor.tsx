@@ -76,7 +76,14 @@ export const Editor = <T, P extends Puzzle<T>>(props: EditorProps<T, P>) => {
 
   const [renderHeight, renderWidth] = puzzle.renderSize(unitSize);
 
-  const onClick = (event: React.MouseEvent<SVGElement, MouseEvent>) => {
+  const [updateItem, setUpdateItem] = useState<T | null>(null);
+
+  const onMouseMove = (event: React.MouseEvent<SVGElement, MouseEvent>, updateItemOverride: T | null) => {
+    const item = updateItemOverride !== null ? updateItemOverride : updateItem;
+    if (item === null) {
+      return;
+    }
+
     const pt = puzzle.mouseToCell(event.nativeEvent.offsetY, event.nativeEvent.offsetX, unitSize);
     if (pt === null) {
       return;
@@ -84,11 +91,28 @@ export const Editor = <T, P extends Puzzle<T>>(props: EditorProps<T, P>) => {
 
     const [y, x] = pt;
     if (selectedItem !== null) {
-      const newPuzzle = puzzle.setCell(y, x, selectedItem.layer, selectedItem.item);
+      const newPuzzle = puzzle.setCell(y, x, selectedItem.layer, item);
       if (newPuzzle !== null) {
         props.updatePuzzle(newPuzzle);
       }
     }
+  };
+
+  const onMouseDown = (event: React.MouseEvent<SVGElement, MouseEvent>) => {
+    if (selectedItem === null) {
+      return null;
+    }
+
+    let item = null;
+    if (event.button === 2) {
+      const layer = selectedItem.layer;
+      item = puzzle.getEditableItems(layer)[0];
+    } else {
+      item = selectedItem.item;
+    }
+
+    setUpdateItem(item);
+    onMouseMove(event, item);
   };
 
   return (<div>
@@ -96,7 +120,15 @@ export const Editor = <T, P extends Puzzle<T>>(props: EditorProps<T, P>) => {
       {itemSelectors}
     </div>
     <div>
-      <svg width={renderWidth} height={renderHeight} onClick={onClick}>
+      <svg
+        width={renderWidth}
+        height={renderHeight}
+        onMouseDown={onMouseDown}
+        onMouseMove={(e) => { onMouseMove(e, null); }}
+        onMouseUp={() => setUpdateItem(null)}
+        onMouseLeave={() => setUpdateItem(null)}
+        onContextMenu={(e) => { e.preventDefault(); }}
+      >
         {puzzle.render(unitSize)}
       </svg>
     </div>

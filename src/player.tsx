@@ -15,15 +15,19 @@ export const Player = <T, P extends Puzzle<T>>(props: PlayerProps<T, P>) => {
       let nextPuzzle = null;
       switch (event.key) {
         case "ArrowUp":
+        case "w":
           nextPuzzle = puzzle.move("up");
           break;
         case "ArrowDown":
+        case "s":
           nextPuzzle = puzzle.move("down");
           break;
         case "ArrowLeft":
+        case "a":
           nextPuzzle = puzzle.move("left");
           break;
         case "ArrowRight":
+        case "d":
           nextPuzzle = puzzle.move("right");
           break;
       }

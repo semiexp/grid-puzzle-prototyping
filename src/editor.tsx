@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Puzzle } from "./puzzle";
 
@@ -115,7 +115,25 @@ export const Editor = <T, P extends Puzzle<T>>(props: EditorProps<T, P>) => {
     onMouseMove(event, item);
   };
 
+  const [newHeight, setNewHeight] = useState(puzzle.gridSize()[0]);
+  const [newWidth, setNewWidth] = useState(puzzle.gridSize()[1]);
+
+  const puzzleJsonRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (puzzleJsonRef.current !== null) {
+      puzzleJsonRef.current.value = puzzle.toJSON();
+    }
+  }, [puzzle]);
+
   return (<div>
+    <div>
+      <input type="number" value={newHeight} onChange={(e) => setNewHeight(parseInt(e.target.value))} size={4} />
+      <input type="number" value={newWidth} onChange={(e) => setNewWidth(parseInt(e.target.value))} size={4} />
+      <input type="button" value="Resize" onClick={() => props.updatePuzzle(puzzle.resize(newHeight, newWidth))} />
+      <input type="text" ref={puzzleJsonRef} size={50} />
+      <input type="button" value="Load" onClick={() => props.updatePuzzle(puzzle.fromJSON(puzzleJsonRef.current!.value))} />
+    </div>
     <div>
       {itemSelectors}
     </div>

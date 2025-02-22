@@ -3,12 +3,17 @@ import { JSX } from "react";
 export type Move = "up" | "down" | "left" | "right";
 
 export abstract class Puzzle<T> {
+  // Input/Output methods
+  abstract fromJSON(json: string): this;
+  abstract toJSON(): string;
+
   // Editor methods
   abstract gridSize(): [number, number];
   abstract numLayers(): number;
   abstract getEditableItems(layer: number): T[];
   abstract getCell(y: number, x: number, layer: number): T;
   abstract setCell(y: number, x: number, layer: number, value: T): this | null;
+  abstract resize(height: number, width: number): this;
 
   // Player methods
   abstract asPlayMode(): this;

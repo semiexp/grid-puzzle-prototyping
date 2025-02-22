@@ -27,6 +27,23 @@ export class SimplePuzzle extends Puzzle<Item> {
     }
   }
 
+  fromJSON(json: string): this {
+    const data = JSON.parse(json);
+    const ret = new SimplePuzzle();
+    ret.height = data.height;
+    ret.width = data.width;
+    ret.grid = data.grid;
+    return ret as this;
+  }
+
+  toJSON(): string {
+    return JSON.stringify({
+      height: this.height,
+      width: this.width,
+      grid: this.grid,
+    });
+  }
+
   gridSize(): [number, number] {
     return [this.height, this.width];
   }
@@ -55,6 +72,26 @@ export class SimplePuzzle extends Puzzle<Item> {
     ret.height = this.height;
     ret.width = this.width;
     ret.grid = newGrid;
+    return ret as this;
+  }
+
+  resize(height: number, width: number): this {
+    const newGrid: Item[][][] = [];
+    for (let layer = 0; layer < this.numLayers(); ++layer) {
+      newGrid.push([]);
+      for (let y = 0; y < height; ++y) {
+        newGrid[layer].push([]);
+        for (let x = 0; x < width; ++x) {
+          newGrid[layer][y].push(y < this.height && x < this.width ? this.grid[layer][y][x] : "empty");
+        }
+      }
+    }
+
+    const ret = new SimplePuzzle();
+    ret.height = height;
+    ret.width = width;
+    ret.grid = newGrid;
+
     return ret as this;
   }
 
